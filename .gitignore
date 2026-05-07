@@ -1,0 +1,25 @@
+# env + secrets
+.env
+service_account.json
+*.pem
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.venv/
+venv/
+
+# django
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# editor
+.vscode/
+.idea/
+.DS_Store
