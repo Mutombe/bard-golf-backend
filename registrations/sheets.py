@@ -44,9 +44,19 @@ HEADERS = [
 ]
 
 
+NEWSLETTER_HEADERS = [
+    'Subscribed At (UTC)',
+    'Email',
+    'Source',
+    'Source IP',
+    'User Agent',
+]
+
+
 _client = None
 _spreadsheet = None
 _tab = None
+_newsletter_tab = None
 
 
 def _get_credentials() -> Credentials:
@@ -92,6 +102,36 @@ def _get_tab():
             _tab.update('A1', [HEADERS])
             _tab.format('A1:Z1', {'textFormat': {'bold': True}})
     return _tab
+
+
+def _get_newsletter_tab():
+    """Return (and lazily create) the Newsletter Subscribers tab."""
+    global _newsletter_tab
+    if _newsletter_tab is None:
+        ss = _get_spreadsheet()
+        existing = {ws.title: ws for ws in ss.worksheets()}
+        if settings.NEWSLETTER_TAB_NAME in existing:
+            _newsletter_tab = existing[settings.NEWSLETTER_TAB_NAME]
+        else:
+            _newsletter_tab = ss.add_worksheet(
+                title=settings.NEWSLETTER_TAB_NAME,
+                rows=1000,
+                cols=len(NEWSLETTER_HEADERS),
+            )
+            _newsletter_tab.update('A1', [NEWSLETTER_HEADERS])
+            _newsletter_tab.format('A1:Z1', {'textFormat': {'bold': True}})
+    return _newsletter_tab
+
+
+def append_newsletter(email: str, source: str = '', source_ip: str = '', user_agent: str = '') -> str:
+    """Append one newsletter subscriber row. Returns the updated range string."""
+    tab = _get_newsletter_tab()
+    subscribed_at = datetime.now(timezone.utc).isoformat(timespec='seconds')
+    row = [subscribed_at, email, source, source_ip, user_agent[:500]]
+    result = tab.append_row(row, value_input_option='USER_ENTERED')
+    updated_range = result.get('updates', {}).get('updatedRange', '')
+    log.info('Appended newsletter subscriber: %s', updated_range)
+    return updated_range
 
 
 def append_registration(payload: dict, source_ip: str = '', user_agent: str = '') -> int:

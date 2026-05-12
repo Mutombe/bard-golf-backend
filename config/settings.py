@@ -85,3 +85,4 @@ GOOGLE_SHEETS_CREDENTIALS = os.environ.get(
 GOOGLE_SHEETS_CREDENTIALS_JSON = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_JSON', '')
 GOOGLE_SHEET_ID = os.environ.get('GOOGLE_SHEET_ID', '')
 KWEKWE_TAB_NAME = os.environ.get('KWEKWE_TAB_NAME', 'Kwekwe Registrations')
+NEWSLETTER_TAB_NAME = os.environ.get('NEWSLETTER_TAB_NAME', 'Newsletter Subscribers')

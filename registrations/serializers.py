@@ -28,3 +28,10 @@ class RegistrationSerializer(serializers.Serializer):
     dietary_requirements = serializers.CharField(max_length=500, required=False, allow_blank=True)
     special_requests = serializers.CharField(max_length=1000, required=False, allow_blank=True)
     event = serializers.CharField(max_length=80, required=False, allow_blank=True)
+
+
+class NewsletterSerializer(serializers.Serializer):
+    """Validates the newsletter subscription payload."""
+
+    email = serializers.EmailField()
+    source = serializers.CharField(max_length=120, required=False, allow_blank=True)
