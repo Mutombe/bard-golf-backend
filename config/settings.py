@@ -16,10 +16,20 @@ ALLOWED_HOSTS = [h.strip() for h in os.environ.get(
     'ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com'
 ).split(',') if h.strip()]
 
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get(
-    'CSRF_TRUSTED_ORIGINS',
-    'https://*.onrender.com'
-).split(',') if o.strip()]
+# The frontends this backend serves. Kept here so a missing/stale env var
+# can never break the live site — the env var only ADDS extra origins.
+KNOWN_FRONTENDS = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://demo-bard-santner-golf-v3.onrender.com',
+    'https://bardsantnergolf.com',
+    'https://www.bardsantnergolf.com',
+]
+
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(
+    ['https://*.onrender.com', 'https://bardsantnergolf.com', 'https://www.bardsantnergolf.com']
+    + [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
+))
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
@@ -64,11 +74,13 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS — allow the React frontends that POST registrations.
-CORS_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,http://localhost:5174,https://demo-bard-santner-golf-v3.onrender.com'
-).split(',') if o.strip()]
+# CORS — origins allowed to POST registrations from the browser.
+# KNOWN_FRONTENDS are always allowed; the CORS_ALLOWED_ORIGINS env var
+# (comma-separated) may add more without a code change.
+CORS_ALLOWED_ORIGINS = list(dict.fromkeys(
+    KNOWN_FRONTENDS
+    + [o.strip() for o in os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',') if o.strip()]
+))
 CORS_ALLOW_CREDENTIALS = False
 
 REST_FRAMEWORK = {
